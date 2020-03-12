@@ -1,6 +1,20 @@
 const express = require("express"); // import express
 const exphbs  = require("express-handlebars") // import handlebarsjs the template frame work
+const mongoose = require('mongoose');//import mongoose
+
 const app = express(); // initialise app
+
+// Map global promise
+mongoose.Promise = global.Promise;
+// Connect to mongoose
+mongoose.connect('mongodb://localhost/rancourAnimusDev', {
+    
+}).then(() => console.log('MongoDB Connected...'))
+.catch(err => console.log("error ", err))
+
+// Load Idea Model
+require('./models/Idea');
+const Idea = mongoose.model('ideas')
 
 // add middlewares below this
 // Handlebars Middleware
