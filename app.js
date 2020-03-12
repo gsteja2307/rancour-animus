@@ -2,11 +2,22 @@ const express = require("express"); // import express
 
 const app = express(); // initialise app
 
-// Index Route
-app.get('/',(req, res)=>{
-    res.send("INDEX")
+// How middleware works
+app.use(function(req, res, next){
+    // console.log(Date.now());
+    req.name = "Surya Teja";
+    next();
 });
 
+// Index Route
+app.get('/',(req, res)=>{
+    console.log(req.name)
+    res.send("INDEX")
+});
+// sample Route
+app.get('/surya',(req, res)=>{
+    res.send(req.name)
+});
 // About Route
 app.get("/about",(req, res)=>{
     res.send('ABOUT');
