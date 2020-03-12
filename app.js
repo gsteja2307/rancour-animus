@@ -2,6 +2,8 @@ const express = require("express"); // import express
 const exphbs  = require("express-handlebars") // import handlebarsjs the template frame work
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');//import mongoose
+const Handlebars = require('handlebars');
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
 const app = express(); // initialise app
 
@@ -9,7 +11,8 @@ const app = express(); // initialise app
 mongoose.Promise = global.Promise;
 // Connect to mongoose
 mongoose.connect('mongodb://localhost/rancourAnimusDev', {
-    
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 }).then(() => console.log('MongoDB Connected...'))
 .catch(err => console.log("error ", err))
 
@@ -20,6 +23,7 @@ const Idea = mongoose.model('ideas')
 // add middlewares below this
 // Handlebars Middleware
 app.engine('handlebars', exphbs({
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
     defaultLayout: 'main'
 }));
 app.set('view engine', 'handlebars');
@@ -41,6 +45,17 @@ app.get('/',(req, res)=>{
 // About Route
 app.get("/about",(req, res)=>{
     res.render('about');
+})
+
+// Idea Index Page
+app.get("/ideas",(req, res)=>{
+    Idea.find({})
+    .sort({date:'desc'})
+    .then(ideas => {
+        res.render('ideas/index',{
+           ideas:ideas 
+        });
+    });
 })
 
 // Add Idea Form
