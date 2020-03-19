@@ -1,5 +1,6 @@
 const express = require("express"); // import express
 const exphbs  = require("express-handlebars") // import handlebarsjs the template frame work
+const methodOverride = require('method-override')//used for put request from form
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');//import mongoose
 const Handlebars = require('handlebars');
@@ -28,11 +29,11 @@ app.engine('handlebars', exphbs({
 }));
 app.set('view engine', 'handlebars');
 // Body Parser Middleware
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// parse application/json
-app.use(bodyParser.json())
+//method override middleware
+app.use(methodOverride('_method'))
 
 // Index Route
 app.get('/',(req, res)=>{
@@ -102,6 +103,22 @@ app.post('/ideas', (req,res) => {
                 res.redirect('/ideas');
             })
     }
+});
+
+//Edit Form Process
+app.put('/ideas/:id', (req, res) => {
+     Idea.findOne({
+         _id: req.params.id
+     })
+     .then(idea => {
+         //new value
+         idea.title = req.body.title
+         idea.details = req.body.details
+         idea.save()
+            .then(idea => {
+                res.redirect('/ideas')
+            })
+     });
 });
 
 const port = 5000;
