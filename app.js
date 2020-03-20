@@ -1,7 +1,9 @@
 const express = require("express"); // import express
-const exphbs  = require("express-handlebars") // import handlebarsjs the template frame work
-const methodOverride = require('method-override')//used for put request from form
-const bodyParser = require('body-parser')
+const exphbs  = require("express-handlebars");// import handlebarsjs the template frame work
+const methodOverride = require('method-override');//used for put request from form
+const flash = require('connect-flash');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');//import mongoose
 const Handlebars = require('handlebars');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
@@ -34,7 +36,22 @@ app.use(bodyParser.json());
 
 //method override middleware
 app.use(methodOverride('_method'))
+// Express session middleware
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
+// Flash middle ware
+app.use(flash());
 
+// Global variables
+app.use(function(req, res, next){
+    res.locals.success_msg = req.flash("success_msg");
+    res.locals.error_msg = req.flash("error_msg");
+    res.locals.error = req.flash("error");
+    next();
+});
 // Index Route
 app.get('/',(req, res)=>{
     const title = "Welcome to Rancour-Animus";
@@ -100,6 +117,7 @@ app.post('/ideas', (req,res) => {
         new Idea(newUser)
             .save()
             .then(idea => {
+                req.flash('success_msg', 'Video idea added successfully')
                 res.redirect('/ideas');
             })
     }
@@ -116,6 +134,7 @@ app.put('/ideas/:id', (req, res) => {
          idea.details = req.body.details
          idea.save()
             .then(idea => {
+                req.flash('success_msg', 'Video idea updated successfully')
                 res.redirect('/ideas')
             })
      });
@@ -124,6 +143,7 @@ app.put('/ideas/:id', (req, res) => {
 app.delete('/ideas/:id', (req, res) => {
     Idea.remove({_id: req.params.id})
         .then(() => {
+            req.flash('success_msg', 'Video Idea Removed');
             res.redirect("/ideas")
         })
 });
