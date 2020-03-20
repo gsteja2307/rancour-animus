@@ -10,6 +10,10 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 
 const app = express(); // initialise app
 
+// Load ROutes
+const ideas = require('./routes/ideas');
+const users = require('./routes/users');
+
 // Map global promise
 mongoose.Promise = global.Promise;
 // Connect to mongoose
@@ -19,9 +23,6 @@ mongoose.connect('mongodb://localhost/rancourAnimusDev', {
 }).then(() => console.log('MongoDB Connected...'))
 .catch(err => console.log("error ", err))
 
-// Load Idea Model
-require('./models/Idea');
-const Idea = mongoose.model('ideas')
 
 // add middlewares below this
 // Handlebars Middleware
@@ -65,88 +66,9 @@ app.get("/about",(req, res)=>{
     res.render('about');
 })
 
-// Idea Index Page
-app.get("/ideas",(req, res)=>{
-    Idea.find({})
-    .sort({date:'desc'})
-    .then(ideas => {
-        res.render('ideas/index',{
-           ideas:ideas 
-        });
-    });
-})
-
-// Add Idea Form
-app.get("/ideas/add",(req, res)=>{
-    res.render('ideas/add');
-})
-// Edit Idea Form
-app.get("/ideas/edit/:id",(req, res)=>{
-    Idea.findOne({
-        _id: req.params.id
-    })
-    .then(idea => {
-        res.render('ideas/edit',{
-            idea:idea
-        });
-    })
-})
-
-// Process Form
-app.post('/ideas', (req,res) => {
-    console.log(req.body)
-    let errors=[];
-    if(!req.body.title){
-        errors.push({text:'Please add a title'})
-    }
-    if(!req.body.details){
-        errors.push({text:'Please add some details'})
-    }
-    if(errors.length>0){
-        res.render('ideas/add',{
-            errors: errors,
-            title: req.body.title,
-            details: req.body.details
-        })
-    }
-    else{
-        const newUser={
-            title: req.body.title,
-            details: req.body.details
-        }
-        new Idea(newUser)
-            .save()
-            .then(idea => {
-                req.flash('success_msg', 'Video idea added successfully')
-                res.redirect('/ideas');
-            })
-    }
-});
-
-//Edit Form Process
-app.put('/ideas/:id', (req, res) => {
-     Idea.findOne({
-         _id: req.params.id
-     })
-     .then(idea => {
-         //new value
-         idea.title = req.body.title
-         idea.details = req.body.details
-         idea.save()
-            .then(idea => {
-                req.flash('success_msg', 'Video idea updated successfully')
-                res.redirect('/ideas')
-            })
-     });
-});
-
-app.delete('/ideas/:id', (req, res) => {
-    Idea.remove({_id: req.params.id})
-        .then(() => {
-            req.flash('success_msg', 'Video Idea Removed');
-            res.redirect("/ideas")
-        })
-});
+// Use routes
+app.use('/ideas', ideas); 
+app.use('/users', users);
 
 const port = 5000;
 
