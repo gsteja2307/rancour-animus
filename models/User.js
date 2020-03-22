@@ -13,7 +13,7 @@ const UserSchema = new Schema({
         rquired: true
     },
     password:{
-        type: Date,
+        type: String,
         default: Date.now
     },
     date:{
