@@ -5,6 +5,7 @@ const methodOverride = require('method-override');//used for put request from fo
 const flash = require('connect-flash');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const passport = require('passport');
 const mongoose = require('mongoose');//import mongoose
 const Handlebars = require('handlebars');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
@@ -14,6 +15,9 @@ const app = express(); // initialise app
 // Load ROutes
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
+
+// Passport config
+require('./config/passport')(passport);
 
 // Map global promise
 mongoose.Promise = global.Promise;
