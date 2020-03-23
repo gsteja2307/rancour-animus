@@ -42,14 +42,19 @@ app.use(bodyParser.json());
 
 // Static folder
 app.use(express.static(path.join(__dirname, 'public')))
+
 //method override middleware
 app.use(methodOverride('_method'))
+
 // Express session middleware
 app.use(session({
   secret: 'secret',
   resave: true,
   saveUninitialized: true
 }));
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 // Flash middle ware
 app.use(flash());
 
@@ -58,6 +63,7 @@ app.use(function(req, res, next){
     res.locals.success_msg = req.flash("success_msg");
     res.locals.error_msg = req.flash("error_msg");
     res.locals.error = req.flash("error");
+    res.locals.user = req.user || null;
     next();
 });
 // Index Route
